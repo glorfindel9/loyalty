@@ -7,13 +7,14 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract MyToken is
+contract LoyaltyToken is
     ERC20,
     ERC20Burnable,
     ERC20Snapshot,
     AccessControl,
     Pausable
 {
+
     bytes32 public constant SNAPSHOT_ROLE = keccak256("SNAPSHOT_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -49,19 +50,4 @@ contract MyToken is
         super._beforeTokenTransfer(from, to, amount);
     }
 
-    function deposit() public onlyRole(MINTER_ROLE) {
-        payable(this).transfer(msg.value);
-    }
-
-    function previewDeposit() public onlyRole(MINTER_ROLE) {
-        payable(this).transfer(msg.value);
-    }
-
-    function withdraw() public onlyRole(MINTER_ROLE) {
-
-    }
-
-    function previewWithdraw() public onlyRole(MINTER_ROLE) {
-        
-    }
 }
