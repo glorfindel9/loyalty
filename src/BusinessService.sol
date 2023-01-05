@@ -12,8 +12,9 @@ contract BusinessService {
     }
     address tokenOwner;
     ERC20 token;
+    uint256 tokenPrice;
     mapping(address => bool) public businessOwnerMapping;
-    mapping(address => Business) businesseMapping;
+    mapping(address => Business) public businessMapping;
     mapping(address => uint256) public balanceMapping;
     uint256 businessIdSeq;
 
@@ -23,9 +24,10 @@ contract BusinessService {
         uint256 _timestamp
     );
 
-    constructor(address _token) {
+    constructor(address _token, uint256 _tokenPrice) {
         token = ERC20(_token);
         tokenOwner = msg.sender;
+        tokenPrice = _tokenPrice;
     }
 
     modifier onlyTokenOwner() {
@@ -41,7 +43,7 @@ contract BusinessService {
     function registerBusiness() public {
         uint256 businessId = ++businessIdSeq;
         Business memory business = Business(businessId, msg.sender, 0, 0);
-        businesseMapping[msg.sender] = business;
+        businessMapping[msg.sender] = business;
         businessOwnerMapping[msg.sender] = true;
         emit RegisterBusiness(msg.sender, businessId, block.timestamp);
     }
@@ -56,16 +58,17 @@ contract BusinessService {
             "Exceed available token"
         );
         token.increaseAllowance(_businessOwner, _amount);
-        businesseMapping[msg.sender].quantity = _amount;
+        businessMapping[msg.sender].quantity = _amount;
     }
 
     function allowanceOf(address _businessOwner) public view returns (uint256) {
         return token.allowance(tokenOwner, _businessOwner);
     }
 
-    function depositBalance() public payable onlyBusinessOwner{
-        balanceMapping[msg.sender] = msg.value;
-        
+    function depositBalance() public payable onlyBusinessOwner {
+        require(businessOwnerMapping[msg.sender], "Unregistered business");
+        balanceMapping[msg.sender] += msg.value;
+        updatePriceTokenBusiness(msg.value);
     }
 
     // function previewDeposit() public {}
@@ -82,5 +85,7 @@ contract BusinessService {
     //     uint256 price = calculatePriceToken();
     // }
 
-    // function calculatePriceToken() internal returns (uint256) {}
+    function updatePriceTokenBusiness(address _businessOwner) internal returns (uint256) {
+        
+    }
 }
